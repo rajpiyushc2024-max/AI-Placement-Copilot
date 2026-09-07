@@ -7,34 +7,26 @@ from dotenv import load_dotenv
 from groq import Groq
 
 
-# ============================================================
-# LOAD ENVIRONMENT VARIABLES
-# ============================================================
-
-env_path = Path(__file__).resolve().parent / ".env"
-
-load_dotenv(
-    dotenv_path=env_path,
-    override=True
-)
-
-
-api_key = os.getenv("GROQ_API_KEY")
-
-
-if not api_key:
-    raise ValueError(
-        "GROQ_API_KEY is missing. Check your .env file."
+def get_groq_client(api_key=None):
+    env_path = Path(__file__).resolve().parent / ".env"
+    load_dotenv(
+        dotenv_path=env_path,
+        override=True
     )
+    key = api_key or os.getenv("GROQ_API_KEY")
+    if not key:
+        try:
+            import streamlit as st
+            if "GROQ_API_KEY" in st.secrets:
+                key = st.secrets["GROQ_API_KEY"]
+        except Exception:
+            pass
 
-
-# ============================================================
-# GROQ CLIENT
-# ============================================================
-
-client = Groq(
-    api_key=api_key
-)
+    if not key:
+        raise ValueError(
+            "GROQ_API_KEY is missing. Please create a .env file with your GROQ_API_KEY (see .env.example), provide it in the sidebar, or set it in your environment/secrets."
+        )
+    return Groq(api_key=key)
 
 
 # ============================================================
@@ -44,7 +36,8 @@ client = Groq(
 def analyze_cv(
     cv_text,
     jd_text,
-    system_prompt
+    system_prompt,
+    api_key=None
 ):
 
     user_prompt = f"""
@@ -75,6 +68,8 @@ JOB DESCRIPTION
     # ========================================================
     # CALL QWEN
     # ========================================================
+
+    client = get_groq_client(api_key=api_key)
 
     response = client.chat.completions.create(
 

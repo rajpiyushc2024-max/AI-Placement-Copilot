@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 
 from parser import extract_text
@@ -15,6 +16,35 @@ st.set_page_config(
     page_icon="🎯",
     layout="wide"
 )
+
+
+# ============================================================
+# SIDEBAR CONFIGURATION
+# ============================================================
+
+with st.sidebar:
+    env_key = os.getenv("GROQ_API_KEY", "")
+    if not env_key and hasattr(st, "secrets") and "GROQ_API_KEY" in st.secrets:
+        env_key = st.secrets["GROQ_API_KEY"]
+    groq_api_key_input = st.text_input(
+        "Groq API Key",
+        value=env_key,
+        type="password",
+        help="Enter your Groq API key, set GROQ_API_KEY in .env, or add it to Streamlit secrets."
+    )
+
+    if groq_api_key_input:
+        st.success("API Key detected ✅")
+    else:
+        st.warning("⚠️ No API Key found.")
+        st.markdown("[Get free Groq API key](https://console.groq.com/keys)")
+
+    st.divider()
+    st.markdown("### ℹ️ About")
+    st.markdown(
+        "**AI Placement Copilot** evaluates candidate CVs against job descriptions "
+        "using Groq's high-speed LPU inference engine."
+    )
 
 
 # ============================================================
@@ -124,6 +154,23 @@ if analyze_button:
 
     try:
 
+        # -----------------------------
+        # Validate API Key
+        # -----------------------------
+
+        active_api_key = groq_api_key_input.strip() if groq_api_key_input else (
+            os.getenv("GROQ_API_KEY") or (st.secrets.get("GROQ_API_KEY") if hasattr(st, "secrets") and "GROQ_API_KEY" in st.secrets else None)
+        )
+
+        if not active_api_key:
+
+            st.warning(
+                "⚠️ Groq API Key is missing. Please enter your API key in the sidebar or define GROQ_API_KEY in a .env file."
+            )
+
+            st.stop()
+
+
         # ====================================================
         # STEP 1 — EXTRACT CV TEXT
         # ====================================================
@@ -157,7 +204,8 @@ if analyze_button:
             analysis = analyze_cv(
                 cv_text,
                 jd_text,
-                SYSTEM_PROMPT
+                SYSTEM_PROMPT,
+                api_key=active_api_key
             )
 
 
