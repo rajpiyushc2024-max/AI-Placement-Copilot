@@ -66,14 +66,14 @@ JOB DESCRIPTION
 
 
     # ========================================================
-    # CALL QWEN
+    # CALL GROQ MODEL
     # ========================================================
 
     client = get_groq_client(api_key=api_key)
 
     response = client.chat.completions.create(
 
-        model="qwen/qwen3.6-27b",
+        model="openai/gpt-oss-120b",
 
         messages=[
             {
@@ -86,10 +86,10 @@ JOB DESCRIPTION
             }
         ],
 
-        # Non-thinking mode
-        reasoning_effort="none",
+        # Medium reasoning for better CV-JD analysis
+        reasoning_effort="medium",
 
-        # Do not return reasoning
+        # Return only final answer, not reasoning
         reasoning_format="hidden",
 
         # Force JSON output
@@ -112,7 +112,7 @@ JOB DESCRIPTION
 
     if not content:
         raise ValueError(
-            "Qwen returned an empty response."
+            "Model returned an empty response."
         )
 
 
@@ -185,11 +185,13 @@ JOB DESCRIPTION
         start = content.find("{")
         end = content.rfind("}")
 
+
         if start != -1 and end != -1:
 
             json_text = content[
                 start:end + 1
             ]
+
 
             try:
 
@@ -207,6 +209,6 @@ JOB DESCRIPTION
         # ====================================================
 
         raise ValueError(
-            "Qwen returned invalid JSON.\n\n"
+            "Model returned invalid JSON.\n\n"
             f"Model response:\n{content}"
         )

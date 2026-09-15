@@ -198,7 +198,7 @@ if analyze_button:
         # ====================================================
 
         with st.spinner(
-            "🤖 Qwen is analyzing your CV against the Job Description..."
+            "🤖 AI is analyzing your CV against the Job Description..."
         ):
 
             analysis = analyze_cv(
@@ -337,11 +337,8 @@ if analyze_button:
 
         st.divider()
 
-
-        # ====================================================
         # STRONG MATCHES
-        # ====================================================
-
+    
         st.subheader(
             "🟢 Strong Matches"
         )
