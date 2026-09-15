@@ -51,7 +51,7 @@ with st.sidebar:
 # HEADER
 # ============================================================
 
-st.title("🎯 AI Placement Copilot v2")
+st.title("🎯 AI Placement Copilot")
 
 st.write(
     "Upload your CV, provide a Job Description, and get "
